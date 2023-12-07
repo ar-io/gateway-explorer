@@ -16,6 +16,7 @@ const meta = {
   argTypes: {},
   args: {
     onItemSelect: (item) => console.log(item),
+    onItemUpdate: (item) => console.log(item),
     onRefresh: () => console.log("refresh"),
   },
 } satisfies Meta<typeof GarTable>;

@@ -66,3 +66,36 @@ export const reportSaveResultSchema = z.object({
   reportTxId: z.string().optional(),
   interactionTxIds: z.array(z.string()).optional(),
 });
+
+export const timingsSchema = z.object({
+  start: z.number(),
+  socket: z.number().optional(),
+  lookup: z.number().optional(),
+  connect: z.number().optional(),
+  secureConnect: z.number().optional(),
+  upload: z.number().optional(),
+  response: z.number().optional(),
+  end: z.number().optional(),
+  error: z.number().optional(),
+  abort: z.number().optional(),
+  phases: z.object({
+    wait: z.number().optional(),
+    dns: z.number().optional(),
+    tcp: z.number().optional(),
+    tls: z.number().optional(),
+    request: z.number().optional(),
+    firstByte: z.number().optional(),
+    download: z.number().optional(),
+    total: z.number().optional(),
+  }),
+});
+
+export const arnsResolutionSchema = z.object({
+  statusCode: z.number(),
+  resolvedId: z.string().nullable(),
+  ttlSeconds: z.string().nullable(),
+  contentLength: z.string().nullable(),
+  contentType: z.string().nullable(),
+  dataHashDigest: z.string().nullable(),
+  timings: timingsSchema.nullable(),
+});

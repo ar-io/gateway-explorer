@@ -26,14 +26,7 @@ import {
 } from "lucide-react"
 import { Button } from "./ui/button"
 import { formatDuration } from "@/lib/utils"
-
-interface Props {
-  data: Array<z.infer<typeof zGatewayAddressRegistryItem>>
-  onRefresh: () => void
-  isRefreshing: boolean
-  onItemSelect: (item: z.infer<typeof zGatewayAddressRegistryItem>) => void
-  selectedItemId?: string
-}
+import { Link } from "@tanstack/react-router"
 
 const columns: ColumnDef<z.infer<typeof zGatewayAddressRegistryItem>>[] = [
   {
@@ -170,11 +163,78 @@ const columns: ColumnDef<z.infer<typeof zGatewayAddressRegistryItem>>[] = [
     },
     sortUndefined: -1,
   },
+  {
+    id: "Observer Reports",
+    accessorKey: "settings.fqdn",
+    header: "Observer Reports",
+    cell: (cell) => {
+      const item = cell.row.original;
+      return (
+        <Button
+          className="h-auto px-1 py-0 text-xs text-muted-foreground"
+          size={"sm"}
+          variant={"outline"}
+          asChild
+        >
+          <Link
+            to="/gateway/$host/reports"
+            params={{ host: item.settings.fqdn }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="line-clamp-1">
+              View Reports
+            </span>
+          </Link>
+        </Button>
+      )
+    },
+    enableSorting: false,
+  },
+  {
+    id: "Observe",
+    accessorKey: "observation.status",
+    header: "Observe",
+    cell: (cell) => {
+      const item = cell.row.original;
+      return (
+        <Button
+          className="h-auto px-1 py-0 text-xs text-muted-foreground"
+          size={"sm"}
+          variant={"outline"}
+          asChild
+        >
+          <Link
+            to="/gateway/$host/observe"
+            params={{ host: item.settings.fqdn }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="line-clamp-1">
+              Observe Now
+            </span>
+          </Link>
+        </Button>
+      )
+    },
+    enableSorting: false,
+  },
 ]
 
+interface Props {
+  data: Array<z.infer<typeof zGatewayAddressRegistryItem>>
+  onRefresh: () => void
+  isRefreshing: boolean
+  onItemUpdate: (item: z.infer<typeof zGatewayAddressRegistryItem>) => void
+  onItemSelect: (item: z.infer<typeof zGatewayAddressRegistryItem>) => void
+  selectedItemId?: string
+}
 
 const GarTable = ({ data, onRefresh, isRefreshing, onItemSelect, selectedItemId }: Props) => {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [sorting, setSorting] = React.useState<SortingState>([
+    {
+      id: "Stake",
+      desc: true,
+    },
+  ])
 
   const table = useReactTable({
     data,
@@ -191,8 +251,9 @@ const GarTable = ({ data, onRefresh, isRefreshing, onItemSelect, selectedItemId 
         "Properties ID": false,
         "Status": false,
         "Start Block": false,
-        // "Uptime": false,
-      }
+        "Note": false,
+        "Uptime": false,
+      },
     }
   })
 
@@ -200,7 +261,7 @@ const GarTable = ({ data, onRefresh, isRefreshing, onItemSelect, selectedItemId 
  
   return (
     <div className="relative">
-      <div className="right-0 md:absolute md:-top-14">
+      <div className="right-0 md:absolute md:-top-12">
         <div className="pb-2 flex flex-row items-end gap-2">
           <div className="ml-2 mr-auto md:mr-0 md:ml-auto text-muted-foreground">{healthy}/{data.length} online</div>
           <ColumnSelection table={table} />

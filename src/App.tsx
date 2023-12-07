@@ -1,12 +1,13 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import GarLoader from './components/GarLoader'
+import { RouterProvider } from '@tanstack/react-router'
+import { router } from './routes'
 
 const queryClient = new QueryClient()
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <GarLoader />
+      <RouterProvider router={router} />
     </QueryClientProvider>
   )
 }

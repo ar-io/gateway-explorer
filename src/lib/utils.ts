@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { encode } from "base64-arraybuffer";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,4 +34,23 @@ export const linkDisplay = (protocol: string, fqdn: string, port: number) => {
   if (protocol === "https" && port === 443) return fqdn;
   if (protocol === "http" && port === 80) return `http://${fqdn}`;
   return linkFull(protocol, fqdn, port);
+};
+
+export const base64ToBase64url = (base64: string) => {
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=*$/g, "");
+};
+
+export const arrayBufferToBase64Url = (arrayBuffer: ArrayBuffer) => {
+  const base64 = encode(arrayBuffer);
+  return base64ToBase64url(base64);
+};
+
+export const fromAsyncGenerator = async <T>(
+  source: Iterable<T> | AsyncIterable<T>
+): Promise<T[]> => {
+  const items: T[] = [];
+  for await (const item of source) {
+    items.push(item);
+  }
+  return items;
 };

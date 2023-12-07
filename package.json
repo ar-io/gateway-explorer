@@ -11,19 +11,32 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "vis": "bunx vite-bundle-visualizer"
   },
   "dependencies": {
+    "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-dialog": "^1.0.4",
     "@radix-ui/react-dropdown-menu": "^2.0.5",
     "@radix-ui/react-scroll-area": "^1.0.4",
+    "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
-    "@tanstack/react-query": "^4.35.3",
+    "@radix-ui/react-toast": "^1.1.5",
+    "@radix-ui/react-tooltip": "^1.0.7",
+    "@tanstack/react-query": "^5.8.4",
+    "@tanstack/react-router": "0.0.1-beta.185",
     "@tanstack/react-table": "^8.9.8",
     "arweave-graphql": "^0.0.5",
+    "base64-arraybuffer": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
+    "dexie": "^3.2.4",
+    "dexie-react-hooks": "^1.1.7",
+    "filesize": "^10.1.0",
+    "javascript-time-ago": "^2.5.9",
+    "ky": "^1.0.1",
     "lucide-react": "^0.276.0",
+    "p-map": "^6.0.0",
     "pako": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -58,6 +71,6 @@
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
     "unplugin-fonts": "^1.0.3",
-    "vite": "^4.4.5"
+    "vite": "^5.0.0"
   }
 }

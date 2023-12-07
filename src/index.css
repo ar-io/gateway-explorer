@@ -44,3 +44,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+code {
+  @apply text-sm;
+}

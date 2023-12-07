@@ -12,6 +12,7 @@ const extractGarItems = (
     id: txId,
     ping: { status: "unknown" },
     health: { status: "unknown" },
+    observation: { status: "unknown" },
     linkFull: linkFull(
       item.settings.protocol,
       item.settings.fqdn,

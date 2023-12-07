@@ -13,12 +13,15 @@
   "status": "joined",
   "start": 1256694,
   "end": 0,
-  "linkFull": "https://ar-io.dev/",
+  "linkFull": "https://ar-io.dev",
   "linkDisplay": "ar-io.dev",
   "ping": {
     "status": "unknown"
   },
   "health": {
+    "status": "unknown"
+  },
+  "observation": {
     "status": "unknown"
   }
 }

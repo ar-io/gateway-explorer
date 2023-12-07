@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { arnsResolutionSchema } from "./lib/observer/schema";
 
 export const zArweaveTxId = z.string().regex(/^[\w-]{43}$/);
 
@@ -22,6 +23,7 @@ export const zGatewayAddressRegistryItemData = z.object({
   status: z.enum(["joined"]),
   start: z.number().int().nonnegative(),
   end: z.number().int().nonnegative(),
+  observerWallet: zArweaveTxId,
 });
 
 export const zGatewayAddressRegistryCache = z.object({
@@ -34,6 +36,12 @@ export const zGatewayHealthCheck = z.object({
   uptime: z.number().nonnegative(),
   message: z.string().optional(),
   date: z.string().datetime().optional(),
+});
+
+// TODO: Copy from observation protocol standard
+export const zArioObservation = z.object({
+  pass: z.boolean(),
+  resolution: arnsResolutionSchema.optional(),
 });
 
 export const zGatewayAddressRegistryItem = z.intersection(
@@ -59,6 +67,20 @@ export const zGatewayAddressRegistryItem = z.intersection(
         uptime: z.number().nonnegative(),
       }),
     ]),
+    observation: z.discriminatedUnion("status", [
+      z.object({ status: z.literal("unknown") }),
+      z.object({ status: z.literal("pending") }),
+      z.object({ status: z.literal("error"), error: z.string().optional() }),
+      z.object({
+        status: z.literal("success"),
+        result: zArioObservation,
+      }),
+    ]),
   }),
   zGatewayAddressRegistryItemData
 );
+
+export const zGatewayObserverInfo = z.object({
+  wallet: zArweaveTxId,
+  contractId: zArweaveTxId,
+});
