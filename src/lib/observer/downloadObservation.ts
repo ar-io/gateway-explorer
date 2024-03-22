@@ -12,20 +12,21 @@ const gql = arweaveGraphql(graphqlUrl);
 
 type TransactionEdge = GetTransactionsQuery["transactions"]["edges"][0];
 
+export type Transaction = TransactionEdge["node"];
+
 export type GetObserverReportTxIdsArgs = Parameters<
   typeof gql.getTransactions
 >["0"];
 
-export type Transaction = TransactionEdge["node"];
-
 export async function queryObserverReportTransactions(
   args: GetObserverReportTxIdsArgs
 ) {
-  const pageArgs = {
+  const pageArgs: GetObserverReportTxIdsArgs = {
     tags: [
       { name: "App-Name", values: ["AR-IO Observer"] },
-      // { name: "App-Version", values: ["0.0.1"] },
-      // { name: "Content-Type", values: ["application/json"] },
+      // { name: "App-Name", values: ["SmartweaveAction"], op: TagOperator.Neq },
+      // { name: "App-Version", values: ["0.0.1", "0.0.2"] },
+      { name: "Content-Type", values: ["application/json"] },
       // { name: "Content-Encoding", values: ["gzip"] },
     ],
     first: 100,
@@ -33,31 +34,6 @@ export async function queryObserverReportTransactions(
     ...args,
   };
   const queryRes = await gql.getTransactions(pageArgs);
-  return queryRes;
-}
-
-export async function* generateObserverReportTransactions(
-  args: GetObserverReportTxIdsArgs,
-  all = true
-) {
-  let queryRes: GetTransactionsQuery | undefined = undefined;
-  do {
-    const pageArgs = {
-      tags: [
-        { name: "App-Name", values: ["AR-IO Observer"] },
-        // { name: "App-Version", values: ["0.0.1"] },
-        // { name: "Content-Type", values: ["application/json"] },
-        // { name: "Content-Encoding", values: ["gzip"] },
-      ],
-      first: 100,
-      sort: SortOrder.HeightAsc,
-      ...args,
-      after: queryRes?.transactions.edges[0].cursor ?? args?.after,
-    };
-    queryRes = await gql.getTransactions(pageArgs);
-    const transactionEdges: TransactionEdge[] = queryRes.transactions.edges;
-    yield* transactionEdges;
-  } while (all && queryRes.transactions.pageInfo.hasNextPage);
   return queryRes;
 }
 

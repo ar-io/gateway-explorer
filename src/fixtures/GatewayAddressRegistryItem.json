@@ -1,7 +1,8 @@
 {
   "id": "QGWqtJdLLgm2ehFWiiPzMaoFLD50CnGuzZIPEdoDRGQ",
+  "fqdnKey": "ar-io.dev",
   "operatorStake": 250000,
-  "vaults": [{ "balance": 250000, "start": 1256694, "end": 0 }],
+  "vaults": {},
   "settings": {
     "label": "AR.IO Test",
     "fqdn": "ar-io.dev",
@@ -15,6 +16,7 @@
   "end": 0,
   "linkFull": "https://ar-io.dev",
   "linkDisplay": "ar-io.dev",
+  "observerWallet": "IPdwa3Mb_9pDD8c2IaJx6aad51Ss-_TfStVwBuhtXMs",
   "ping": {
     "status": "unknown"
   },

@@ -1,5 +1,6 @@
-import { zGatewayAddressRegistryItem, zGatewayHealthCheck } from "@/types";
+import { zGatewayAddressRegistryItem } from "@/types";
 import { z } from "zod";
+import { zGatewayHealthCheck } from "./gar/schema";
 
 const pingStaggerDelayMs = 10; // 0.01s
 const pingTimeout = 5000; // 5s

@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import GatewayDetails from './GatewayDetails';
 import { z } from 'zod';
 import { zGatewayAddressRegistryItem } from '@/types';
-import { garQuery } from '@/lib/query';
+import { useGarData } from '@/hooks/useGarData';
 
 const GarLoader = () => {
   const {
@@ -14,7 +14,8 @@ const GarLoader = () => {
     isLoading,
     isFetching,
     error,
-  } = useQuery(garQuery);
+    refetch,
+  } = useGarData();
 
   const {
     data: procData,
@@ -47,7 +48,13 @@ const GarLoader = () => {
   
   const [isDetailsSheetOpen, setIsDetailsSheetOpen] = useState(false)
   
-  if (error) return <div>Error: {JSON.stringify(error)}</div>
+  if (error) return (
+    <div>
+      <p>Error: {JSON.stringify(error)}</p>
+      <button onClick={() => refetch()}>Retry</button>
+    </div>
+  )
+
 
   return (
     <>

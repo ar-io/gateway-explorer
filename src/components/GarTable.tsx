@@ -22,18 +22,21 @@ import { RefreshButton } from "./RefreshButton"
 import { 
   ArrowUpDown,
   ArrowDown,
-  ArrowUp
+  ArrowUp,
 } from "lucide-react"
 import { Button } from "./ui/button"
-import { formatDuration } from "@/lib/utils"
-import { Link } from "@tanstack/react-router"
+import { formatDuration, mIoToIo } from "@/lib/utils"
+import { HostLinksDropdown } from "./HostLinksDropdown"
+import { useVisibilityStatePersistent } from "@/hooks/useVisibilityStatePersisent"
+import IncentiveHoverCard from "./IncentiveHoverCard"
+import DelegatedStakeHoverCard from "./DelegatedStakeHoverCard"
 
 const columns: ColumnDef<z.infer<typeof zGatewayAddressRegistryItem>>[] = [
   {
     id: "Label",
     accessorKey: "settings.label",
     header: "Label",
-    enableHiding: false,
+    // enableHiding: false,
   },
   {
     id: "Address",
@@ -81,6 +84,63 @@ const columns: ColumnDef<z.infer<typeof zGatewayAddressRegistryItem>>[] = [
     id: "Stake",
     accessorKey: "operatorStake",
     header: "Stake",
+    cell: (cell) => {
+      return (
+        <p className="text-right">
+          {mIoToIo(cell.row.original.operatorStake).toFixed(2)}
+        </p>
+      )
+    }
+  },
+  {
+    id: "Auto Stake",
+    accessorKey: "settings.autoStake",
+    header: "Auto Stake",
+    cell: (cell) => <p className="text-center">{cell.row.original.settings.autoStake ? 'Enabled' : 'Disabled'}</p>
+  },
+  {
+    id: "Delegated Stake",
+    accessorKey: "totalDelegatedStake",
+    header: "Delegated Stake",
+    cell: (cell) => {
+      if (cell.row.original.totalDelegatedStake === 0) {
+        return (
+          <p className="text-right">0.00</p>
+        )
+      }
+      return <div className="flex justify-end">
+        <DelegatedStakeHoverCard 
+          totalDelegatedStake={cell.row.original.totalDelegatedStake}
+          delegates={cell.row.original.delegates}
+        />
+      </div>
+    }
+  },
+  {
+    id: "Delegate Status",
+    accessorKey: "settings.allowDelegatedStaking",
+    header: "Delegate Status",
+    cell: (cell) => <p className="text-center">{cell.row.original.settings.allowDelegatedStaking ? 'Allowed' : 'Disabled'}</p>
+  },
+  {
+    id: "Delegate Count",
+    accessorKey: "delegateCount",
+    header: "Delegate Count",
+    cell: (cell) => <p className="text-center">{cell.row.original.delegateCount}</p>
+  },
+  {
+    id: "Delegate Rewards",
+    accessorKey: "delegateEffectiveRewardProportion",
+    header: "Delegate Rewards",
+    cell: (cell) => {
+      const isEnabled = cell.row.original.settings.allowDelegatedStaking;
+      const originalProportionNonZero = cell.row.original.delegateRewardProportion !== 0;
+      return (
+        <p className={`text-center ${isEnabled ? "" : `text-muted-foreground ${originalProportionNonZero ? "line-through" : ""}`}`}>
+          {(cell.row.original.delegateRewardProportion * 100).toFixed(1)}%
+        </p>
+      )
+    }
   },
   {
     id: "Status",
@@ -164,58 +224,63 @@ const columns: ColumnDef<z.infer<typeof zGatewayAddressRegistryItem>>[] = [
     sortUndefined: -1,
   },
   {
-    id: "Observer Reports",
-    accessorKey: "settings.fqdn",
-    header: "Observer Reports",
+    id: "Rating",
+    accessorKey: 'gatewayRating',
+    header: "Rating",
     cell: (cell) => {
-      const item = cell.row.original;
       return (
-        <Button
-          className="h-auto px-1 py-0 text-xs text-muted-foreground"
-          size={"sm"}
-          variant={"outline"}
-          asChild
-        >
-          <Link
-            to="/gateway/$host/reports"
-            params={{ host: item.settings.fqdn }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span className="line-clamp-1">
-              View Reports
-            </span>
-          </Link>
-        </Button>
+        <IncentiveHoverCard garItem={cell.row.original} />
       )
-    },
-    enableSorting: false,
+    }
   },
   {
-    id: "Observe",
-    accessorKey: "observation.status",
-    header: "Observe",
+    id: "Epochs Participated",
+    accessorKey: 'stats.totalEpochParticipationCount',
+    header: "Epochs Participated",
+    cell: (cell) => <p className="text-center">{cell.getValue() as number}</p>,
+  },
+  {
+    id: "Epochs Passed",
+    accessorKey: 'stats.passedEpochCount',
+    header: "Epochs Passed",
+    cell: (cell) => <p className="text-center">{cell.getValue() as number}</p>
+  },
+  {
+    id: "Epochs Submitted",
+    accessorKey: 'stats.submittedEpochCount',
+    header: "Epochs Submitted",
+    cell: (cell) => <p className="text-center">{cell.getValue() as number}</p>
+  },
+  {
+    id: "Epochs Prescribed",
+    accessorKey: 'stats.totalEpochsPrescribedCount',
+    header: "Epochs Participated",
+    cell: (cell) => <p className="text-center">{cell.getValue() as number}</p>
+  },
+  {
+    id: "Epochs Failed",
+    accessorKey: 'stats.failedConsecutiveEpochs',
+    header: "Epochs Failed",
+    cell: (cell) => <p className="text-center">{cell.getValue() as number}</p>
+  },
+  {
+    id: "Observation Chance",
+    accessorKey: 'weights.normalizedCompositeWeight',
+    header: "Observation Chance",
+    cell: (cell) => <p className="text-center">{((cell.getValue() as number) * 100).toFixed(2)}%</p>
+  },
+  {
+    id: "Dropdown Extra",
+    accessorKey: "settings.fqdnKey",
+    header: "",
     cell: (cell) => {
       const item = cell.row.original;
       return (
-        <Button
-          className="h-auto px-1 py-0 text-xs text-muted-foreground"
-          size={"sm"}
-          variant={"outline"}
-          asChild
-        >
-          <Link
-            to="/gateway/$host/observe"
-            params={{ host: item.settings.fqdn }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span className="line-clamp-1">
-              Observe Now
-            </span>
-          </Link>
-        </Button>
+        <HostLinksDropdown fqdnKey={item.fqdnKey} />
       )
     },
     enableSorting: false,
+    enableHiding: false,
   },
 ]
 
@@ -236,25 +301,36 @@ const GarTable = ({ data, onRefresh, isRefreshing, onItemSelect, selectedItemId 
     },
   ])
 
+  const [columnVisibility, onColumnVisibilityChange] = useVisibilityStatePersistent('gar-table', {
+    "Owner ID": false,
+    "Properties ID": false,
+    "Auto Stake": false,
+    "Delegate Status": false,
+    "Delegate Count": false,
+    "Delegate Rewards": false,
+    "Status": false,
+    "Start Block": false,
+    "Note": false,
+    "Uptime": false,
+    "Epochs Participated": false,
+    "Epochs Passed": false,
+    "Epochs Submitted": false,
+    "Epochs Prescribed": false,
+    "Epochs Failed": false,
+    "Observation Chance": false,
+  });
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnVisibilityChange,
     state: {
       sorting,
+      columnVisibility,
     },
-    initialState: {
-      columnVisibility: {
-        "Owner ID": false,
-        "Properties ID": false,
-        "Status": false,
-        "Start Block": false,
-        "Note": false,
-        "Uptime": false,
-      },
-    }
   })
 
   const healthy = data.filter((item) => item.health.status === "success").length

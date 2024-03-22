@@ -10,7 +10,7 @@ export const gatewayHostSchema = z.object({
 });
 
 export const ownershipAssessmentSchema = z.object({
-  expectedWallet: z.string(),
+  expectedWallet: z.string().optional(),
   observedWallet: z.string().nullable(),
   failureReason: z.string().optional(),
   pass: z.boolean(),

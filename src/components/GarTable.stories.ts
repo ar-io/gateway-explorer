@@ -53,12 +53,10 @@ export const MultipleItems: Story = {
   },
 };
 
-import GatewayAddressRegistryCache from "../fixtures/GatewayAddressRegistryCache.json";
-import { zGatewayAddressRegistryCache } from "@/types";
+import IncentiveContract from "../fixtures/IncentiveContract.json";
 import { extractGarItems } from "@/lib/convert";
-const garCache = zGatewayAddressRegistryCache.parse(
-  GatewayAddressRegistryCache
-);
+import { incentiveContractSchema } from "@/lib/incentive/schema";
+const garCache = incentiveContractSchema.parse(IncentiveContract);
 const items = extractGarItems(garCache);
 export const ManyItems: Story = {
   args: {

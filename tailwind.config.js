@@ -74,9 +74,13 @@ module.exports = {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "spin-ccw": "spin-ccw 1s linear infinite",
+        'spin-slow': 'spin 2s linear infinite',
       },
       fontFamily: {
         "ario": "Rubik",
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       }
     },
   },

@@ -77,7 +77,7 @@ export interface ObserversSource {
 //
 
 export interface OwnershipAssessment {
-  expectedWallet: string;
+  expectedWallet?: string;
   observedWallet: string | null;
   failureReason?: string;
   pass: boolean;

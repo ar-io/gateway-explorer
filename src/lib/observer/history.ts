@@ -6,7 +6,11 @@ export interface ReportHistoryTableData {
   size: number;
   timestamp?: number;
   encoding?: string;
+  version?: string;
+  isSupportedVersion?: boolean;
 }
+
+const versionWhitelist = ["0.0.1"];
 
 export const generateReportHistoryTableData = (
   gqlTransaction: Transaction
@@ -14,6 +18,10 @@ export const generateReportHistoryTableData = (
   const encoding = gqlTransaction.tags
     .find((tag) => tag.name === "Content-Encoding")
     ?.value.toLowerCase();
+  const version = gqlTransaction.tags
+    .find((tag) => tag.name === "App-Version")
+    ?.value.toLowerCase();
+  const isSupportedVersion = versionWhitelist.includes(version ?? "");
 
   return {
     txId: gqlTransaction.id,
@@ -21,5 +29,7 @@ export const generateReportHistoryTableData = (
     size: parseInt(gqlTransaction.data.size),
     timestamp: gqlTransaction.block?.timestamp,
     encoding,
+    version,
+    isSupportedVersion,
   };
 };

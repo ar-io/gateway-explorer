@@ -1,18 +1,14 @@
 import { expect, test } from "bun:test";
-import GatewayAddressRegistryCache from "../fixtures/GatewayAddressRegistryCache.json";
-import {
-  zGatewayAddressRegistryCache,
-  zGatewayAddressRegistryItem,
-} from "../types";
+import IncentiveContract from "../fixtures/IncentiveContract.json";
+import { zGatewayAddressRegistryItem } from "../types";
 import { extractGarItems } from "./convert";
 import { z } from "zod";
+import { incentiveContractEndpointSchema } from "./incentive/schema";
 
 test("convert GatewayAddressRegistryCache fixture", () => {
-  const garCache = zGatewayAddressRegistryCache.parse(
-    GatewayAddressRegistryCache
-  );
-  const garItems = extractGarItems(garCache);
-  expect(garItems.length).toEqual(Object.keys(garCache.gateways).length);
+  const garCache = incentiveContractEndpointSchema.parse(IncentiveContract);
+  const garItems = extractGarItems(garCache.result);
+  expect(garItems.length).toEqual(Object.keys(garCache.result).length);
 
   const garItemsParsed = z
     .array(zGatewayAddressRegistryItem)

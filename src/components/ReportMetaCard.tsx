@@ -10,21 +10,22 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
-
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
-TimeAgo.addDefaultLocale(en)
-const timeAgo = new TimeAgo('en')
+import { timeAgo } from "@/lib/timeago";
+import { ReportPasteAndGo } from "./ReportPasteAndGo";
+import { z } from "zod";
+import { zGatewayAddressRegistryItem } from "@/types";
 
 interface Props {
   host: React.ReactNode;
   source: string;
-  sourceId?: string;
+  txId?: string;
   reportData?: ObserverReport;
   isError: boolean;
+  garData?: Array<z.infer<typeof zGatewayAddressRegistryItem>>;
+  fqdnKey: string;
 }
 
-export const ReportMetaCard = ({ host, source, sourceId, reportData, isError }: Props) => {
+export const ReportMetaCard = ({ host, source, txId, reportData, isError, garData, fqdnKey }: Props) => {
   const staticRows = (
     <>
       <TableRow>
@@ -35,10 +36,18 @@ export const ReportMetaCard = ({ host, source, sourceId, reportData, isError }: 
         <TableCell className="font-medium">Report Source</TableCell>
         <TableCell className="text-right">{source}</TableCell>
       </TableRow>
-      {sourceId !== undefined && (
+      {txId !== undefined && (
         <TableRow>
           <TableCell className="font-medium">Source ID</TableCell>
-          <TableCell className="text-right"><code>{sourceId}</code></TableCell>
+          <TableCell className="">
+            <div className="ml-auto mr-0 max-w-[26rem]">
+              <ReportPasteAndGo
+                initialTxId={txId}
+                garData={garData}
+                fallbackFqdnKey={fqdnKey}
+              />
+            </div>
+          </TableCell>
         </TableRow>
       )}
     </>

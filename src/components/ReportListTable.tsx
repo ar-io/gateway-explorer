@@ -31,12 +31,9 @@ import { downloadObserverInfo, queryObserverReportTransactions } from "@/lib/obs
 import { SortOrder, Transaction } from "arweave-graphql";
 import { ReportHistoryTableData, generateReportHistoryTableData } from "@/lib/observer/history";
 import { filesize } from "filesize"
-
-import TimeAgo from 'javascript-time-ago'
-import en from 'javascript-time-ago/locale/en'
-TimeAgo.addDefaultLocale(en)
-
-const timeAgo = new TimeAgo('en')
+import { timeAgo } from "@/lib/timeago"
+import { useToast } from "./ui/use-toast"
+import { useVisibilityStatePersistent } from "@/hooks/useVisibilityStatePersisent"
 
 const columns: ColumnDef<ReportHistoryTableData>[] = [
   {
@@ -141,6 +138,19 @@ const columns: ColumnDef<ReportHistoryTableData>[] = [
       )
     }
   },
+  {
+    id: "Version",
+    accessorKey: "version",
+    header: "Version",
+    cell: (cell) => {
+      const version = cell.row.original.version;
+      return (
+        <code>
+          {version ?? "none"}
+        </code>
+      )
+    }
+  },
 ];
 
 interface Props {
@@ -151,6 +161,8 @@ interface Props {
 }
 
 export const ReportListTable = ({ host, observer, garData, isGarError }: Props) => {
+  const { toast } = useToast();
+
   const {
     data: observerInfo,
     isError: isObserverInfoError,
@@ -161,6 +173,7 @@ export const ReportListTable = ({ host, observer, garData, isGarError }: Props) 
       return res;
     },
     enabled: observer !== undefined,
+    retry: false,
   })
 
   const owners = [
@@ -211,6 +224,11 @@ export const ReportListTable = ({ host, observer, garData, isGarError }: Props) 
   }, [gqlData])
   
   const [sorting, setSorting] = useState<SortingState>([])
+  const [columnVisibility, onColumnVisibilityChange] = useVisibilityStatePersistent("report-list", {
+    "Observer Id": false,
+    "Timestamp": false,
+    "Encoding": false,
+  });
 
   const table = useReactTable({
     data: tableData,
@@ -218,17 +236,11 @@ export const ReportListTable = ({ host, observer, garData, isGarError }: Props) 
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnVisibilityChange,
     state: {
       sorting,
+      columnVisibility,
     },
-    initialState: {
-      columnVisibility: {
-        "Observer Id": false,
-        // "Transaction Id": false,
-        "Timestamp": false,
-        "Encoding": false,
-      }
-    }
   })
 
   const navigate = useNavigate()
@@ -266,7 +278,7 @@ export const ReportListTable = ({ host, observer, garData, isGarError }: Props) 
             <SelectContent>
               {
                 garData?.map((item) => (
-                  <SelectItem key={item.id} value={item.settings.fqdn}>
+                  <SelectItem key={item.id} value={item.fqdnKey}>
                     {item.settings.label} ({item.linkDisplay})
                   </SelectItem>
                 ))
@@ -360,6 +372,15 @@ export const ReportListTable = ({ host, observer, garData, isGarError }: Props) 
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
                         onClick={() => {
+                          if (row.original.isSupportedVersion === false) {
+                            const version = row.original.version;
+                            toast({
+                              title: "Unsupported report version",
+                              description: `This report is using version ${version} which is currently unsupported by Gateway Explorer.`,
+                              duration: 2000,
+                            })
+                            return;
+                          }
                           navigate({
                             to: "/gateway/$host/reports/tx/$txId",
                             params: { host: host, txId: row.original.txId },
@@ -367,7 +388,7 @@ export const ReportListTable = ({ host, observer, garData, isGarError }: Props) 
                         }}
                       >
                         {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
+                          <TableCell key={cell.id} className={cell.row.original.isSupportedVersion ? "" : "text-muted-foreground"}>
                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                           </TableCell>
                         ))}

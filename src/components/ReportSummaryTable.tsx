@@ -33,6 +33,7 @@ import { zGatewayAddressRegistryItem } from "@/types"
 import { z } from "zod"
 import { AssessmentDetails } from "./AssessmentDetails";
 import { ReportMetaCard } from "./ReportMetaCard";
+import { useVisibilityStatePersistent } from "@/hooks/useVisibilityStatePersisent";
 
 const columns: ColumnDef<GatewayAssessmentSummary>[] = [
   {
@@ -94,8 +95,6 @@ interface Props {
 }
 
 const ReportSummaryTable = ({ host, source, sourceId, garData, isGarError, reportData, isReportError }: Props) => {
-  const [sorting, setSorting] = useState<SortingState>([])
-
   const gatewayAssessmentData: GatewayAssessmentSummary[] = useMemo(() => 
     Object.entries(reportData?.gatewayAssessments ?? {})
     .map(
@@ -105,21 +104,23 @@ const ReportSummaryTable = ({ host, source, sourceId, garData, isGarError, repor
     [reportData?.gatewayAssessments],
   );
 
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnVisibility, onColumnVisibilityChange] = useVisibilityStatePersistent("report-summary", {
+    "Expected Owner": false,
+    "Observed Owner": false,
+  })
+
   const table = useReactTable({
     data: gatewayAssessmentData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnVisibilityChange,
     state: {
       sorting,
+      columnVisibility,
     },
-    initialState: {
-      columnVisibility: {
-        "Expected Owner": false,
-        "Observed Owner": false,
-      }
-    }
   })
 
   const assessmentCount = gatewayAssessmentData.length ?? 0
@@ -155,6 +156,7 @@ const ReportSummaryTable = ({ host, source, sourceId, garData, isGarError, repor
         </div>
         <div className="pb-4">
           <ReportMetaCard
+            key={`${source}_${sourceId}`}
             host={(source !== "Current") ? (
               <span>{host}</span>
             ) : (
@@ -177,7 +179,7 @@ const ReportSummaryTable = ({ host, source, sourceId, garData, isGarError, repor
                 <SelectContent>
                   {
                     garData?.map((item) => (
-                      <SelectItem key={item.id} value={item.settings.fqdn}>
+                      <SelectItem key={item.id} value={item.fqdnKey}>
                         {item.settings.label} ({item.linkDisplay})
                       </SelectItem>
                     ))
@@ -186,9 +188,11 @@ const ReportSummaryTable = ({ host, source, sourceId, garData, isGarError, repor
               </Select>
             )}
             source={source}
-            sourceId={sourceId}
+            txId={sourceId}
             reportData={reportData}
             isError={isGarError || isReportError}
+            garData={garData}
+            fqdnKey={host}
           />
         </div>
         <div className="px-1 py-2 flex items-center gap-2">
